@@ -4,6 +4,8 @@ import mediapipe as mp
 import socket
 import json  # 用于将数据转换为JSON格式进行发送
 
+from utils.function import vector_to_axis_angles, angles_to_quaternion, quaternion_multiply, quatertion_conj, quaternion_norm
+
 def calculate_angle(v1, v2):
     dot_product = np.dot(v1, v2)
     norm_v1 = np.linalg.norm(v1)
@@ -114,6 +116,17 @@ while True:
         for (a, b, c) in finger_joints:
             v1 = keypoints_3d[a] - keypoints_3d[b]
             v2 = keypoints_3d[b] - keypoints_3d[c]
+
+            ###############################modified by ljk
+            angles_v1 = vector_to_axis_angles(v1)
+            angles_v2 = vector_to_axis_angles(v2)
+            quaternion_v1 = angles_to_quaternion(angles_v1)
+            quaternion_v2 = angles_to_quaternion(angles_v2)
+            quaternion_v1_v2 = quaternion_multiply(quatertion_conj(quaternion_v1), quaternion_v2)
+            quaternion_norm_v1_v2 = quaternion_norm(quaternion_v1_v2)
+            print(quaternion_norm_v1_v2)
+            ###############################modified by ljk
+
             angle = calculate_angle(v1, v2)
             # 打印关节角度
             print(f"关节 {b} 的弯曲角度: {float(angle)} 度")
